@@ -3,7 +3,7 @@ package br.com.demo.dflix.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ConverteDados implements IConverteDados{
+public class ConverteDados implements IConverteDados {
     private ObjectMapper mapper = new ObjectMapper();
 
     @Override
@@ -13,8 +13,5 @@ public class ConverteDados implements IConverteDados{
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-        
     }
-
-    
 }
