@@ -3,6 +3,7 @@ package br.com.demo.dflix.principal;
 import br.com.demo.dflix.model.DadosSerie;
 import br.com.demo.dflix.model.DadosTemporada;
 import br.com.demo.dflix.model.Serie;
+import br.com.demo.dflix.repository.SerieRepository;
 import br.com.demo.dflix.service.ConsumoApi;
 import br.com.demo.dflix.service.ConverteDados;
 
@@ -15,6 +16,9 @@ import java.util.Scanner;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.hibernate.service.spi.InjectService;
+import org.springframework.beans.factory.annotation.Autowired;
+
 public class Principal {
 
     private Scanner leitura = new Scanner(System.in);
@@ -24,6 +28,11 @@ public class Principal {
     private final String API_KEY = "&apikey=6585022c";
     private int OPCAO = -1;
     private List<DadosSerie> dadosSeries = new ArrayList<>();
+    private SerieRepository serieRepository;
+
+    public Principal(SerieRepository serieRepository){
+        this.serieRepository = serieRepository;
+    }
 
     public void exibeMenu() {
         do {
@@ -60,8 +69,9 @@ public class Principal {
 
     private void buscarSerieWeb() {
         DadosSerie dados = getDadosSerie();
-        System.out.println(dados);
         dadosSeries.add(dados);
+        serieRepository.save(new Serie(dados));
+        System.out.println(dados);
     }
 
     private DadosSerie getDadosSerie() {
