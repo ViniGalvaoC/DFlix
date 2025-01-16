@@ -6,13 +6,16 @@ import java.util.OptionalDouble;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
@@ -37,7 +40,7 @@ public class Serie {
     private String poster;
     private String sinopse;
 
-    @Transient
+    @OneToMany(mappedBy = "serie",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     private List<Episodio> episodios = new ArrayList<>();
 
     public Serie(){}
@@ -121,6 +124,7 @@ public class Serie {
     }
 
     public void setEpisodios(List<Episodio> episodios) {
+        episodios.forEach(e-> e.setSerie(this));
         this.episodios = episodios;
     }
 
@@ -135,8 +139,9 @@ public class Serie {
                 Atores: %s
                 Poster: %s
                 Sinopse: %s
+                Episodios: %s
             """
-            ,genero,titulo,totalTemporadas,avaliacao,atores,poster,sinopse);
+            ,genero,titulo,totalTemporadas,avaliacao,atores,poster,sinopse,episodios);
     }
 
 }
