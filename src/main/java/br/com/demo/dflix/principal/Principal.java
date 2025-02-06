@@ -1,12 +1,16 @@
 package br.com.demo.dflix.principal;
 
+import br.com.demo.dflix.model.DadosFilme;
 import br.com.demo.dflix.model.DadosSerie;
 import br.com.demo.dflix.model.DadosTemporada;
 import br.com.demo.dflix.model.Episodio;
+import br.com.demo.dflix.model.Filme;
 import br.com.demo.dflix.model.Serie;
+import br.com.demo.dflix.repository.FilmeRepository;
 import br.com.demo.dflix.repository.SerieRepository;
 import br.com.demo.dflix.service.ConsumoApi;
 import br.com.demo.dflix.service.ConverteDados;
+import enums.Categoria;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -30,20 +34,31 @@ public class Principal {
     private final String API_KEY = "&apikey=6585022c";
     private int OPCAO = -1;
     private List<DadosSerie> dadosSeries = new ArrayList<>();
+    private List<DadosFilme> dadosFilme = new ArrayList<>();
     private SerieRepository serieRepository;
+    private FilmeRepository filmeRepository;
     private List<Serie> series = new ArrayList<>();
+    private List<Filme> filmes = new ArrayList<>();
 
-    public Principal(SerieRepository serieRepository){
+    public Principal(SerieRepository serieRepository,FilmeRepository filmeRepository){
         this.serieRepository = serieRepository;
+        this.filmeRepository = filmeRepository;
     }
 
     public void exibeMenu() {
         do {
             var menu = """
-                    1 - Buscar séries
-                    2 - Buscar episódios
+                    1 - Buscar séries web
+                    2 - Buscar episódios web
                     3 - Listar séries buscadas
                     4 - Buscar série por título
+                    5 - Buscar filme web
+                    6 - Listar filmes buscados
+                    7 - Buscar filme por título
+                    8 - Buscar filme por gênero
+                    9 - Buscar filme com nota maior que
+                    10 - Buscar série por gênero
+                    11 - Buscar série com nota maior que
                     0 - Sair
                     """;
 
@@ -67,6 +82,31 @@ public class Principal {
                     break;
                 case 4:
                     buscarSeriePorTitulo();
+                    break;
+                case 5:
+                try {
+                    buscarFilmeWeb();
+                } catch (Exception e) {
+                    System.out.println("Filme não encontrada na API");
+                }
+                    break;
+                case 6:
+                    listarFilmesBuscados();
+                    break;
+                case 7:
+                    buscarFilmePorTitulo();
+                    break;
+                case 8:
+                    buscarFilmePorGenero();
+                    break;
+                case 9:
+                    buscarFilmePorNotaMaiorQue();
+                    break;
+                case 10:
+                    buscarSeriePorGenero();
+                    break;
+                case 11:
+                    buscarSeriePorNotaMaiorQue();
                     break;
                 case 0:
                     System.out.println("Saindo...");
@@ -131,6 +171,94 @@ public class Principal {
             System.out.println("Dados da série: " + serieBuscada.get());
         }else{
              System.out.println("Série não encontrada");
+        }
+    }
+
+    private void buscarSeriePorGenero(){
+        System.out.println("Escolha as séries por gênero: ");
+        var genero = leitura.nextLine();
+        Optional<List<Serie>> seriesBuscadas = serieRepository.findByGeneroEquals(Categoria.valueOf(genero.toUpperCase()));
+
+        if(seriesBuscadas.isPresent()){
+            var seriesQ = seriesBuscadas.get();
+            if(seriesQ.isEmpty()){
+                System.out.println("Séries com avaliação maior que %s não encontrados".formatted(genero));
+            }
+            seriesQ.forEach(s-> System.out.println("Dados da série: " + s));
+        }
+    }
+
+    private void buscarSeriePorNotaMaiorQue(){
+        System.out.println("Escolha as séries por avaliação maior que: ");
+        var avaliacao = leitura.nextLine();
+        Optional<List<Serie>> seriesBuscados = serieRepository.findByAvaliacaoGreaterThanEqual(Double.valueOf(avaliacao));
+
+        if(seriesBuscados.isPresent()){
+            var seriesQ = seriesBuscados.get();
+            if(seriesQ.isEmpty()){
+                System.out.println("Séries com avaliação maior que %s não encontrados".formatted(avaliacao));
+            }
+            seriesQ.forEach(s-> System.out.println("Dados da série: " + s));
+        }
+    }
+
+    private void buscarFilmeWeb() {
+        DadosFilme dados = getDadosFilme();
+        dadosFilme.add(dados);
+        filmeRepository.save(new Filme(dados));
+        System.out.println(dados);
+    }
+
+    private DadosFilme getDadosFilme() {
+        System.out.println("Digite o nome do filme para busca");
+        var nomeFilme = leitura.nextLine();
+        var json = consumo.obterDados(ENDERECO + nomeFilme.replace(" ", "+") + API_KEY);
+        DadosFilme dados = conversor.obterDados(json, DadosFilme.class);
+        return dados;
+    }
+
+    private void listarFilmesBuscados() {
+        filmes = filmeRepository.findAll();
+        filmes.stream().sorted(Comparator.comparing(Filme::getGenero)).forEach(System.out::println);
+    }
+
+    private void buscarFilmePorTitulo(){
+        System.out.println("Escolha o filme pelo nome: ");
+        var nomeFilme = leitura.nextLine();
+        Optional<Filme> filmeBuscado = filmeRepository.findByTituloContainingIgnoreCase(nomeFilme);
+
+        if(filmeBuscado.isPresent()){
+            System.out.println("Dados do filme: " + filmeBuscado.get());
+        }else{
+             System.out.println("Filme não encontrado");
+        }
+    }
+
+    private void buscarFilmePorGenero(){
+        System.out.println("Escolha os filmes por gênero: ");
+        var genero = leitura.nextLine();
+        Optional<List<Filme>> filmesBuscados = filmeRepository.findByGeneroEquals(Categoria.valueOf(genero.toUpperCase()));
+
+        if(filmesBuscados.isPresent()){
+            var filmesQ = filmesBuscados.get();
+            if(filmesQ.isEmpty()){
+                System.out.println("Séries com avaliação maior que %s não encontrados".formatted(genero));
+            }
+            filmesQ.forEach(s-> System.out.println("Dados do filme: " + s));
+        }
+    }
+
+    private void buscarFilmePorNotaMaiorQue(){
+        System.out.println("Escolha os filmes por avaliação maior que: ");
+        var avaliacao = leitura.nextLine();
+        Optional<List<Filme>> filmesBuscados = filmeRepository.findByAvaliacaoGreaterThanEqual(Double.valueOf(avaliacao));
+
+        if(filmesBuscados.isPresent()){
+            var filmesQ = filmesBuscados.get();
+            if(filmesQ.isEmpty()){
+                System.out.println("Séries com avaliação maior que %s não encontrados".formatted(avaliacao));
+            }
+            filmesQ.forEach(s-> System.out.println("Dados do filme: " + s));
         }
     }
 }
