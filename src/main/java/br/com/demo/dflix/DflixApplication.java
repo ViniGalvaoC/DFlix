@@ -7,6 +7,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import br.com.demo.dflix.principal.Principal;
+import br.com.demo.dflix.repository.FilmeRepository;
 import br.com.demo.dflix.repository.SerieRepository;
 
 @SpringBootApplication
@@ -14,6 +15,9 @@ public class DflixApplication implements CommandLineRunner{
 
 	@Autowired
     private SerieRepository serieRepository;
+
+	@Autowired
+    private FilmeRepository filmeRepository;
 
 	public static void main(String[] args) {
 		SpringApplication.run(DflixApplication.class, args);
@@ -23,7 +27,7 @@ public class DflixApplication implements CommandLineRunner{
 	
 	@Override
 	public void run(String... args) throws Exception {
-		Principal principal = new Principal(serieRepository);
+		Principal principal = new Principal(serieRepository,filmeRepository);
 		principal.exibeMenu();
 	}
 }
