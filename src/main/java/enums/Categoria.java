@@ -1,4 +1,4 @@
-package br.com.demo.dflix.model;
+package enums;
 
 public enum Categoria {
     ACAO("Action"),
@@ -6,7 +6,8 @@ public enum Categoria {
     COMEDIA("Comedy"),
     CRIME("Crime"),
     DRAMA("Drama"),
-    ROMANCE("Romance");
+    ROMANCE("Romance"),
+    MISTERIO("Mystery");
     
     private String categoriaOmdb;
 
