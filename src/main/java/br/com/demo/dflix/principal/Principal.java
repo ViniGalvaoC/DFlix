@@ -148,7 +148,7 @@ public class Principal {
                 temporadas.add(dadosTemporada);
             }
             temporadas.forEach(System.out::println);
-            var episodios = temporadas.stream().flatMap(temporada -> temporada.episodios().stream().map(episodio-> new Episodio(episodio.numero(),episodio))).collect(Collectors.toList());
+            var episodios = temporadas.stream().flatMap(temporada -> temporada.episodios().stream().map(episodio-> new Episodio(temporada.numero(),episodio))).collect(Collectors.toList());
             serieEncontrada.setEpisodios(episodios);
             serieRepository.save(serieEncontrada);
         }else{
