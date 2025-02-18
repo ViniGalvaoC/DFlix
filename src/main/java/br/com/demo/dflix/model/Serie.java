@@ -139,9 +139,8 @@ public class Serie {
                 Atores: %s
                 Poster: %s
                 Sinopse: %s
-                Episodios: %s
             """
-            ,genero,titulo,totalTemporadas,avaliacao,atores,poster,sinopse,episodios);
+            ,genero,titulo,totalTemporadas,avaliacao,atores,poster,sinopse);
     }
 
 }
